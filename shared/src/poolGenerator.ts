@@ -1,4 +1,4 @@
-import { ALL_TIME_PLAYERS } from "./data/players";
+﻿import { ALL_TIME_PLAYERS } from "./data/players";
 import { Player, Role } from "./types";
 
 /**
@@ -98,7 +98,7 @@ function generateProceduralPlayer(index: number, role: Role): Player {
     id,
     fullName,
     displayName: `${fullName}`,
-    photo: `https://api.dicebear.com/7.x/bottts/svg?seed=${id}`,
+    photo: "",
     country: countryObj.country,
     countryCode: countryObj.countryCode,
     isOverseas,
