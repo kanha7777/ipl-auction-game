@@ -1,0 +1,16 @@
+﻿{
+  "name": "ipl-all-time-auction-game",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mobile-First Multiplayer IPL All-Time Auction Web Game",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "install:all": "npm install --prefix server && npm install --prefix client",
+    "build": "npm install --prefix client && npm run build --prefix client",
+    "start": "cd server && npm start",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev"
+  }
+}
