@@ -123,11 +123,7 @@ export const AuctionTab: React.FC<AuctionTabProps> = ({
         {/* Player Photo + Key Highlights */}
         <div className="flex items-center gap-4 mb-4">
           <div className="relative shrink-0">
-            <img
-              src={player.photo}
-              alt={player.displayName}
-              className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover bg-gradient-to-tr from-[#080E18] to-[#1E304F] border-2 border-slate-700 shadow-xl"
-            />
+            <PlayerAvatar player={player} size="xl" showTierGlow={true} />
             <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-amber-500 to-yellow-400 text-black font-teko text-lg font-bold px-2 py-0.2 rounded-lg shadow-md border border-yellow-200">
               {player.ratings.overall} OVR
             </div>

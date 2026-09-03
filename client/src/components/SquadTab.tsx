@@ -72,11 +72,7 @@ export const SquadTab: React.FC<SquadTabProps> = ({ contestant }) => {
                         className="bg-[#0A121E] border border-[#1E304F] rounded-xl p-2.5 flex items-center justify-between gap-2.5"
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
-                          <img
-                            src={p.photo}
-                            alt={p.displayName}
-                            className="w-10 h-10 rounded-xl object-cover bg-slate-800 border border-slate-700 shrink-0"
-                          />
+                          <PlayerAvatar player={p} size="sm" />
                           <div className="min-w-0">
                             <div className="flex items-center gap-1">
                               <p className="text-xs font-bold text-white truncate">{p.displayName}</p>

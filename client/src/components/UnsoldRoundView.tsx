@@ -103,11 +103,7 @@ export const UnsoldRoundView: React.FC<UnsoldRoundViewProps> = ({
                       )}
                     </div>
                   )}
-                  <img
-                    src={p.photo}
-                    alt={p.displayName}
-                    className="w-9 h-9 rounded-xl object-cover bg-slate-800 border border-slate-700 shrink-0"
-                  />
+                  <PlayerAvatar player={p} size="sm" />
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-white truncate">{p.displayName}</p>
                     <p className="text-[10px] text-slate-400 truncate">
