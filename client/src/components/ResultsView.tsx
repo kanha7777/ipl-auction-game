@@ -1,4 +1,5 @@
-﻿import React, { useEffect, useState } from "react";
+﻿import { PlayerAvatar } from "./PlayerAvatar";
+import React, { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
 import { RoomData, SquadScoreBreakdown } from "../../../shared/src/types";
 import { formatCrores } from "../../../shared/src/rules";

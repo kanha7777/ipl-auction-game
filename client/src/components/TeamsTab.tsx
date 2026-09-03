@@ -1,4 +1,5 @@
-﻿import React, { useState } from "react";
+﻿import { PlayerAvatar } from "./PlayerAvatar";
+import React, { useState } from "react";
 import { Contestant, RoomData } from "../../../shared/src/types";
 import { formatCrores } from "../../../shared/src/rules";
 import { Users2, Wallet, Globe, ChevronDown, ChevronUp } from "lucide-react";

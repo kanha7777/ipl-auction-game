@@ -1,3 +1,4 @@
+ï»¿import { PlayerAvatar } from "./PlayerAvatar";
 import React, { useState } from "react";
 import { Contestant, Player, RoomData } from "../../../shared/src/types";
 import { RotateCcw, Trophy, CheckSquare, Square, Play, ShieldAlert } from "lucide-react";
@@ -38,7 +39,7 @@ export const UnsoldRoundView: React.FC<UnsoldRoundViewProps> = ({
       {/* Banner */}
       <div className="bg-gradient-to-r from-purple-900/60 via-ipl-card to-[#0A121E] border border-purple-500/40 rounded-3xl p-6 shadow-2xl text-center space-y-2">
         <span className="bg-purple-500/20 text-purple-300 font-extrabold text-xs px-3 py-1 rounded-full border border-purple-500/40 uppercase tracking-widest inline-block">
-          PRD SECTION 4.14 • ACCELERATED ROUND
+          PRD SECTION 4.14 ï¿½ ACCELERATED ROUND
         </span>
         <h1 className="font-teko text-4xl sm:text-5xl font-extrabold text-white tracking-wide uppercase leading-none">
           UNSOLD PLAYER ROUND
@@ -66,7 +67,7 @@ export const UnsoldRoundView: React.FC<UnsoldRoundViewProps> = ({
               >
                 Select All
               </button>
-              <span className="text-slate-600">•</span>
+              <span className="text-slate-600">ï¿½</span>
               <button
                 onClick={deselectAll}
                 className="text-slate-400 hover:text-white font-semibold underline"
@@ -110,7 +111,7 @@ export const UnsoldRoundView: React.FC<UnsoldRoundViewProps> = ({
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-white truncate">{p.displayName}</p>
                     <p className="text-[10px] text-slate-400 truncate">
-                      {p.primaryRole} • {p.ratings.overall} OVR
+                      {p.primaryRole} ï¿½ {p.ratings.overall} OVR
                     </p>
                   </div>
                 </div>

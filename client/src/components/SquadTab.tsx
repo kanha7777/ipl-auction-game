@@ -1,4 +1,5 @@
-﻿import React from "react";
+﻿import { PlayerAvatar } from "./PlayerAvatar";
+import React from "react";
 import { Contestant, Role } from "../../../shared/src/types";
 import { formatCrores } from "../../../shared/src/rules";
 import { Shield, Sparkles, User, Award } from "lucide-react";

@@ -1,4 +1,5 @@
-﻿import React, { useEffect } from "react";
+﻿import { PlayerAvatar } from "./PlayerAvatar";
+import React, { useEffect } from "react";
 import { Contestant, CurrentAuctionItem, RoomData } from "../../../shared/src/types";
 import { formatCrores, validateBid } from "../../../shared/src/rules";
 import { sounds } from "../soundEffects";
@@ -137,7 +138,7 @@ export const AuctionTab: React.FC<AuctionTabProps> = ({
               {player.displayName}
             </h1>
             <p className="text-xs text-slate-300 font-medium truncate mb-2">
-              {player.fullName} � {player.seasons} IPL Seasons
+              {player.fullName} • {player.seasons} IPL Seasons
             </p>
 
             {/* Base Price Pill */}
@@ -312,7 +313,7 @@ export const AuctionTab: React.FC<AuctionTabProps> = ({
           )}
           {validation.valid && !isLeading && (
             <span className="text-[11px] text-black/80 font-bold mt-0.5">
-              Single Tap � Next increment auto-calculated
+              Single Tap • Next increment auto-calculated
             </span>
           )}
         </button>

@@ -40,7 +40,7 @@ export const InfoTab: React.FC<InfoTabProps> = ({ room }) => {
 
           <div className="bg-[#0A121E] p-2.5 rounded-xl border border-[#1E304F]">
             <div className="flex justify-between font-bold">
-              <span>? All-Rounders</span>
+              <span>⚡ All-Rounders</span>
               <span className="text-ipl-yellow font-teko text-base">15 Pts</span>
             </div>
             <p className="text-[10px] text-slate-400 mt-0.5">Genuine 3D players providing lower-order hitting & 4 overs.</p>

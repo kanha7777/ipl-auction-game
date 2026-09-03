@@ -1,19 +1,21 @@
 ﻿import React, { useState } from "react";
-import { RoomData, Contestant, AuctionConfig } from "../../../shared/src/types";
-import { formatCrores } from "../../../shared/src/rules";
+import { RoomData, Contestant, Player } from "../../../shared/src/types";
+import { PlayerAvatar } from "./PlayerAvatar";
 import {
   Users,
-  Settings,
-  Bot,
+  Copy,
+  Check,
   Play,
-  Share2,
-  Trash2,
+  UserPlus,
+  Settings,
   Layers,
-  Sparkles,
-  CheckCircle2,
-  RefreshCw,
   Crown,
-  X
+  Trash2,
+  Share2,
+  RefreshCw,
+  Sparkles,
+  X,
+  Clock,
 } from "lucide-react";
 
 interface LobbyViewProps {
@@ -22,7 +24,7 @@ interface LobbyViewProps {
   onStartAuction: () => void;
   onAddBot: () => void;
   onRemoveContestant: (id: string) => void;
-  onUpdateConfig: (config: Partial<AuctionConfig>) => void;
+  onUpdateConfig: (config: any) => void;
   onPreparePool: () => void;
 }
 
@@ -35,23 +37,34 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
   onUpdateConfig,
   onPreparePool,
 }) => {
+  const isHost = contestant.isHost;
+  const [copied, setCopied] = useState(false);
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [showPoolPreview, setShowPoolPreview] = useState(false);
-  const [copied, setCopied] = useState(false);
 
-  // Config state
+  // Editable config state
   const [playerCount, setPlayerCount] = useState(room.config.playerCount);
   const [minSquad, setMinSquad] = useState(room.config.minSquadSize);
   const [maxSquad, setMaxSquad] = useState(room.config.maxSquadSize);
   const [maxOverseas, setMaxOverseas] = useState(room.config.maxOverseas);
+  const [timerDuration, setTimerDuration] = useState(room.config.timerDuration || 7);
 
-  const isHost = contestant.isHost;
-  const host = room.contestants.find((c) => c.isHost);
-
-  const handleCopyLink = () => {
+  const handleCopyCode = () => {
     navigator.clipboard.writeText(room.id);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: "Join IPL All-Time Auction Room",
+        text: `Join my IPL Auction room! Code: ${room.id}`,
+        url: window.location.href,
+      }).catch(() => {});
+    } else {
+      handleCopyCode();
+    }
   };
 
   const handleSaveConfig = () => {
@@ -60,77 +73,45 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
       minSquadSize: minSquad,
       maxSquadSize: maxSquad,
       maxOverseas,
+      timerDuration,
     });
     setShowConfigModal(false);
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4 space-y-4 pb-20">
-      {/* Lobby Header Card */}
-      <div className="bg-ipl-card border border-[#1E304F] rounded-2xl p-5 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-ipl-yellow/10 rounded-full blur-2xl pointer-events-none" />
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-2xl bg-[#0A121E] border border-ipl-yellow/40 flex items-center justify-center text-3xl shadow-inner">
-              {contestant.teamLogo}
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="font-teko text-3xl font-bold tracking-wide text-white leading-none">
-                  AUCTION LOBBY
-                </h1>
-                <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 uppercase tracking-widest">
-                  Ready
-                </span>
-              </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Host: <span className="text-ipl-yellow font-semibold">{host?.name || "Host"}</span> • Purse: <span className="text-emerald-400 font-semibold">{formatCrores(room.config.startingPurse)}</span>
-              </p>
-            </div>
-          </div>
-
-          {/* Room ID Badge & Share */}
-          <div className="flex items-center gap-2 bg-[#0A121E] border border-[#1E304F] p-2 rounded-xl">
-            <div className="text-left px-1">
-              <span className="text-[9px] uppercase font-bold text-slate-400 block leading-tight">
-                Room Code
-              </span>
-              <span className="font-teko text-xl font-bold text-ipl-yellow tracking-widest leading-none">
-                {room.id}
-              </span>
-            </div>
+    <div className="max-w-4xl mx-auto p-4 space-y-4 pb-20 animate-in fade-in duration-300">
+      {/* Room Code Banner & Share */}
+      <div className="bg-gradient-to-r from-ipl-card via-[#13223A] to-ipl-card border border-[#1E304F] rounded-2xl p-4 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="text-center sm:text-left">
+          <span className="text-[10px] uppercase tracking-widest text-amber-400 font-extrabold block">
+            ROOM CODE • SHARE WITH FRIENDS
+          </span>
+          <div className="flex items-center gap-2 justify-center sm:justify-start mt-0.5">
+            <span className="font-teko text-4xl font-bold tracking-widest text-white">{room.id}</span>
             <button
-              onClick={handleCopyLink}
-              className="bg-[#1E304F] hover:bg-[#284068] text-white p-2 rounded-lg text-xs flex items-center gap-1 transition active:scale-95"
-              title="Copy Room Code"
+              onClick={handleCopyCode}
+              className="p-1.5 rounded-lg bg-[#0A121E] hover:bg-[#1E304F] border border-[#243B60] text-slate-300 hover:text-white transition"
+              title="Copy code"
             >
-              {copied ? (
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-              ) : (
-                <Share2 className="w-3.5 h-3.5" />
-              )}
-              <span className="hidden sm:inline text-[11px] font-semibold">
-                {copied ? "Copied" : "Copy"}
-              </span>
+              {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={handleShare}
+              className="p-1.5 rounded-lg bg-[#0A121E] hover:bg-[#1E304F] border border-[#243B60] text-slate-300 hover:text-white transition sm:hidden"
+              title="Share Link"
+            >
+              <Share2 className="w-4 h-4 text-ipl-accent" />
             </button>
           </div>
         </div>
 
-        {/* Quick Rules Pills */}
-        <div className="mt-4 pt-3 border-t border-[#1E304F] flex flex-wrap items-center gap-2 text-xs">
-          <span className="bg-[#0A121E] text-slate-300 px-2.5 py-1 rounded-lg border border-[#1E304F]">
-            👥 <strong className="text-white">{room.contestants.length}/20</strong> Franchises
-          </span>
-          <span className="bg-[#0A121E] text-slate-300 px-2.5 py-1 rounded-lg border border-[#1E304F]">
-            🏏 Pool: <strong className="text-white">{room.pool.length || room.config.playerCount}</strong> Players (Auto-scaled)
-          </span>
-          <span className="bg-[#0A121E] text-slate-300 px-2.5 py-1 rounded-lg border border-[#1E304F]">
-            🛡️ Squad: <strong className="text-white">{room.config.minSquadSize}–{room.config.maxSquadSize}</strong> (Max {room.config.maxOverseas} OS)
-          </span>
-          <span className="bg-[#0A121E] text-slate-300 px-2.5 py-1 rounded-lg border border-[#1E304F]">
-            ⏱️ Timer: <strong className="text-white">{room.config.timerDuration}s</strong>
-          </span>
+        {/* Quick Rules Summary Pill */}
+        <div className="flex items-center gap-2 flex-wrap justify-center text-xs text-slate-300 bg-[#0A121E]/80 border border-[#1E304F] px-3 py-2 rounded-xl">
+          <span>💰 Purse: <strong className="text-ipl-yellow">₹120 Cr</strong></span>
+          <span>•</span>
+          <span>🏏 Pool: <strong className="text-white">{room.pool.length || room.config.playerCount}</strong> Players</span>
+          <span>•</span>
+          <span>⏱️ Timer: <strong className="text-white">{room.config.timerDuration || 7}s</strong></span>
         </div>
       </div>
 
@@ -140,51 +121,41 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
           <h2 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
             <Users className="w-4 h-4 text-ipl-accent" /> Contestants ({room.contestants.length}/20)
           </h2>
-
-          {isHost && room.contestants.length < 20 && (
+          {isHost && (
             <button
               onClick={onAddBot}
-              className="bg-[#131F33] hover:bg-[#1E304F] text-ipl-yellow border border-ipl-yellow/30 text-xs font-semibold py-1.5 px-3 rounded-xl flex items-center gap-1.5 transition active:scale-95 shadow"
+              className="bg-[#131F33] hover:bg-[#1E304F] text-ipl-accent border border-[#243B60] hover:border-ipl-accent text-xs font-bold py-1.5 px-3 rounded-xl flex items-center gap-1.5 transition active:scale-95 shadow-sm"
             >
-              <Bot className="w-3.5 h-3.5" />
-              <span>Add AI Franchise</span>
+              <UserPlus className="w-3.5 h-3.5" />
+              Add AI Team
             </button>
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
           {room.contestants.map((c) => (
             <div
               key={c.id}
-              className={`flex items-center justify-between p-3 rounded-xl border transition ${
+              className={`p-3 rounded-xl border flex items-center justify-between gap-2 transition ${
                 c.id === contestant.id
-                  ? "bg-[#131F33] border-ipl-yellow/60 shadow-md"
+                  ? "bg-gradient-to-r from-[#13223A] to-[#1E355A] border-ipl-yellow/50 shadow-md"
                   : "bg-[#0A121E] border-[#1E304F]"
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">
                 <span className="text-2xl filter drop-shadow">{c.teamLogo}</span>
                 <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <p className="text-xs font-bold text-white truncate">{c.teamName}</p>
-                    {c.isHost && (
-                      <span className="bg-amber-500/20 text-ipl-yellow text-[9px] font-extrabold px-1.5 py-0.2 rounded border border-amber-500/30 uppercase">
-                        Host
-                      </span>
-                    )}
-                    {c.isBot && (
-                      <span className="bg-indigo-500/20 text-indigo-300 text-[9px] font-bold px-1.5 py-0.2 rounded border border-indigo-500/30 uppercase">
-                        AI
-                      </span>
-                    )}
+                  <div className="flex items-center gap-1">
+                    <h3 className="text-xs font-bold text-white truncate">{c.teamName}</h3>
+                    {c.isHost && <Crown className="w-3 h-3 text-amber-400 shrink-0" />}
                   </div>
-                  <p className="text-[11px] text-slate-400 truncate">
-                    {c.name} • {formatCrores(c.purse)}
+                  <p className="text-[10px] text-slate-400 truncate">
+                    {c.name} {c.isBot ? "• AI Franchise" : ""} {c.id === contestant.id ? "• (You)" : ""}
                   </p>
                 </div>
               </div>
 
-              {isHost && !c.isHost && (
+              {isHost && c.id !== contestant.id && (
                 <button
                   onClick={() => onRemoveContestant(c.id)}
                   className="text-slate-500 hover:text-rose-400 p-1.5 rounded-lg transition"
@@ -211,7 +182,7 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
               className="bg-[#131F33] hover:bg-[#1E304F] text-white border border-[#2A3F64] font-semibold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
             >
               <Settings className="w-4 h-4 text-ipl-accent" />
-              Configure Rules
+              Configure Rules & Timer
             </button>
 
             <button
@@ -248,7 +219,7 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
           </div>
           <h3 className="font-teko text-xl font-bold text-white">Waiting for Host to Start...</h3>
           <p className="text-xs text-slate-400 max-w-sm mx-auto">
-            The host is configuring rules and finalizing contestants. The live auction will begin automatically.
+            The host is configuring rules, timer, and finalizing contestants. The live auction will begin automatically.
           </p>
         </div>
       )}
@@ -256,11 +227,11 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
       {/* Configuration Modal */}
       {showConfigModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-ipl-card border border-[#1E304F] rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
+          <div className="bg-ipl-card border border-[#1E304F] rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-[#1E304F] pb-3">
               <h3 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
                 <Settings className="w-4 h-4 text-ipl-accent" />
-                Auction Configuration
+                Auction Configuration & Timer
               </h3>
               <button
                 onClick={() => setShowConfigModal(false)}
@@ -270,14 +241,53 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
               </button>
             </div>
 
-            <div className="space-y-3 text-xs">
+            <div className="space-y-4 text-xs">
+              {/* Bidding Timer Duration Config */}
+              <div className="bg-[#0A121E] p-3 rounded-xl border border-[#1E304F]">
+                <label className="block font-semibold text-slate-200 mb-1 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 text-amber-400">
+                    <Clock className="w-3.5 h-3.5" /> Bidding Timer Countdown
+                  </span>
+                  <span className="text-ipl-yellow font-bold text-xs">{timerDuration} Seconds</span>
+                </label>
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="number"
+                    min="3"
+                    max="60"
+                    value={timerDuration}
+                    onChange={(e) => setTimerDuration(Math.max(3, Math.min(60, Number(e.target.value))))}
+                    className="w-full bg-[#131F33] border border-[#243B60] focus:border-ipl-yellow rounded-xl px-3 py-2 text-sm font-bold text-ipl-yellow outline-none"
+                    placeholder="Enter seconds (3 - 60)"
+                  />
+                  <span className="text-xs text-slate-400 shrink-0 font-medium">Sec / Bid</span>
+                </div>
+                {/* Timer Quick Pills */}
+                <div className="grid grid-cols-6 gap-1">
+                  {[5, 7, 10, 15, 20, 30].map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => setTimerDuration(t)}
+                      className={`py-1 rounded-lg border text-xs font-bold transition ${
+                        timerDuration === t
+                          ? "bg-ipl-yellow text-black border-ipl-yellow"
+                          : "bg-[#131F33] text-slate-300 border-[#243B60]"
+                      }`}
+                    >
+                      {t}s
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Player Count in Pool */}
               <div>
                 <label className="block font-semibold text-slate-300 mb-1 flex items-center justify-between">
                   <span>Player Count in Auction Pool</span>
                   <span className="text-ipl-yellow font-bold text-xs">{playerCount} Players</span>
                 </label>
 
-                {/* Direct Number Input for 300+, 400+, 500+ custom size */}
                 <div className="flex items-center gap-2 mb-2">
                   <input
                     type="number"
@@ -292,7 +302,6 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
                   <span className="text-xs text-slate-400 shrink-0 font-medium">Custom Pool</span>
                 </div>
 
-                {/* Quick Selection Pills */}
                 <div className="grid grid-cols-4 gap-1.5 mb-1.5">
                   {[40, 80, 150, 200, 300, 400, 500, 600].map((count) => (
                     <button
@@ -352,8 +361,8 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
               </div>
 
               <div className="bg-[#0A121E] p-3 rounded-xl border border-[#1E304F] text-[11px] text-slate-400 space-y-1">
-                <p>• Starting Purse: <span className="text-ipl-yellow font-bold">₹120 Cr</span> (Fixed MVP)</p>
-                <p>• Countdown Timer: <span className="text-ipl-yellow font-bold">7 Seconds</span> (Resets on bid)</p>
+                <p>• Starting Purse: <span className="text-ipl-yellow font-bold">₹120 Cr</span></p>
+                <p>• Countdown Timer: <span className="text-ipl-yellow font-bold">{timerDuration} Seconds</span> (Resets on each bid)</p>
                 <p>• Marquee Opening sequence enabled automatically</p>
               </div>
             </div>
@@ -416,7 +425,7 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
                     <span className="font-teko text-base font-bold text-slate-400 w-6 text-center">
                       #{idx + 1}
                     </span>
-                    <img src={p.photo} alt={p.displayName} className="w-8 h-8 rounded-full border border-slate-700 bg-slate-800 shrink-0" />
+                    <PlayerAvatar player={p} size="sm" />
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
                         <span className="font-bold text-white truncate">{p.displayName}</span>
