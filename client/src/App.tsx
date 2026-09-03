@@ -14,7 +14,18 @@ import { InfoTab } from "./components/InfoTab";
 import { UnsoldRoundView } from "./components/UnsoldRoundView";
 import { ResultsView } from "./components/ResultsView";
 
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:4000";
+// Dynamically resolve socket URL for local dev vs Render cloud deployment
+const getSocketUrl = (): string => {
+  if (typeof window !== "undefined") {
+    // If in dev mode on vite default port 5173, point to backend 4000
+    if (window.location.port === "5173") {
+      return import.meta.env.VITE_SERVER_URL || "http://localhost:4000";
+    }
+    // In production on Render or mobile, connect to exact origin
+    return window.location.origin;
+  }
+  return import.meta.env.VITE_SERVER_URL || "http://localhost:4000";
+};
 
 export const App: React.FC = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -42,12 +53,32 @@ export const App: React.FC = () => {
 
   // Initialize Socket.IO connection
   useEffect(() => {
-    const s = io(SERVER_URL, {
+    const s = io(getSocketUrl(), {
       transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 4000,
+      timeout: 10000,
     });
 
     s.on("connect", () => {
       console.log("Connected to server:", s.id);
+      const savedToken = localStorage.getItem("ipl_auction_token");
+      const savedRoomId = localStorage.getItem("ipl_auction_room_id");
+      if (savedToken && savedRoomId) {
+        s.emit("join_room", { roomId: savedRoomId, reconnectToken: savedToken }, (res: any) => {
+          if (res.success && res.room && res.contestant) {
+            setRoom(res.room);
+            setContestant(res.contestant);
+            setContestantId(res.contestant.id);
+          }
+        });
+      }
+    });
+
+    s.on("reconnect", () => {
+      console.log("Socket reconnected!");
       const savedToken = localStorage.getItem("ipl_auction_token");
       const savedRoomId = localStorage.getItem("ipl_auction_room_id");
       if (savedToken && savedRoomId) {
@@ -129,40 +160,111 @@ export const App: React.FC = () => {
     };
   }, [contestantId]);
 
+  // Mobile resilience: Resume and catch up on state when switching apps, returning from phone call, or tab switch
+  useEffect(() => {
+    const handleResume = () => {
+      if (document.visibilityState === "visible" && socket) {
+        console.log("App resumed on mobile (call/app switch) - syncing auction state...");
+        if (!socket.connected) {
+          socket.connect();
+        }
+        const savedToken = localStorage.getItem("ipl_auction_token");
+        const savedRoomId = localStorage.getItem("ipl_auction_room_id");
+        if (savedToken && savedRoomId) {
+          socket.emit("join_room", { roomId: savedRoomId, reconnectToken: savedToken }, (res: any) => {
+            if (res.success && res.room && res.contestant) {
+              setRoom(res.room);
+              setContestant(res.contestant);
+              setContestantId(res.contestant.id);
+            }
+          });
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleResume);
+    window.addEventListener("focus", handleResume);
+    window.addEventListener("online", handleResume);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleResume);
+      window.removeEventListener("focus", handleResume);
+      window.removeEventListener("online", handleResume);
+    };
+  }, [socket]);
+
   const handleCreateRoom = (hostName: string, teamName: string, teamColor: string, teamLogo: string) => {
-    if (!socket) return;
+    if (!socket) {
+      setError("Connecting to server... Please try again in a second.");
+      return;
+    }
     setLoading(true);
     setError(null);
-    socket.emit("create_room", { hostName, teamName, teamColor, teamLogo }, (res: any) => {
+
+    const timeout = setTimeout(() => {
       setLoading(false);
-      if (res.success && res.room && res.contestant) {
-        setRoom(res.room);
-        setContestant(res.contestant);
-        setContestantId(res.contestant.id);
-        localStorage.setItem("ipl_auction_token", res.contestant.reconnectToken);
-        localStorage.setItem("ipl_auction_room_id", res.room.id);
-      } else {
-        setError(res.error || "Failed to create room");
-      }
-    });
+      setError("Connection taking longer than expected. Tap Create again.");
+    }, 8000);
+
+    const execute = () => {
+      socket.emit("create_room", { hostName, teamName, teamColor, teamLogo }, (res: any) => {
+        clearTimeout(timeout);
+        setLoading(false);
+        if (res.success && res.room && res.contestant) {
+          setRoom(res.room);
+          setContestant(res.contestant);
+          setContestantId(res.contestant.id);
+          localStorage.setItem("ipl_auction_token", res.contestant.reconnectToken);
+          localStorage.setItem("ipl_auction_room_id", res.room.id);
+        } else {
+          setError(res.error || "Failed to create room");
+        }
+      });
+    };
+
+    if (socket.connected) {
+      execute();
+    } else {
+      socket.connect();
+      socket.once("connect", execute);
+    }
   };
 
   const handleJoinRoom = (roomId: string, name: string, teamName: string, teamColor: string, teamLogo: string) => {
-    if (!socket) return;
+    if (!socket) {
+      setError("Connecting to server... Please try again in a second.");
+      return;
+    }
     setLoading(true);
     setError(null);
-    socket.emit("join_room", { roomId, name, teamName, teamColor, teamLogo }, (res: any) => {
+
+    const timeout = setTimeout(() => {
       setLoading(false);
-      if (res.success && res.room && res.contestant) {
-        setRoom(res.room);
-        setContestant(res.contestant);
-        setContestantId(res.contestant.id);
-        localStorage.setItem("ipl_auction_token", res.contestant.reconnectToken);
-        localStorage.setItem("ipl_auction_room_id", res.room.id);
-      } else {
-        setError(res.error || "Failed to join room");
-      }
-    });
+      setError("Connection taking longer than expected. Tap Join again.");
+    }, 8000);
+
+    const execute = () => {
+      socket.emit("join_room", { roomId, name, teamName, teamColor, teamLogo }, (res: any) => {
+        clearTimeout(timeout);
+        setLoading(false);
+        if (res.success && res.room && res.contestant) {
+          setRoom(res.room);
+          setContestant(res.contestant);
+          setContestantId(res.contestant.id);
+          localStorage.setItem("ipl_auction_token", res.contestant.reconnectToken);
+          localStorage.setItem("ipl_auction_room_id", res.room.id);
+        } else {
+          setError(res.error || "Failed to join room");
+        }
+      });
+    };
+
+    if (socket.connected) {
+      execute();
+    } else {
+      socket.connect();
+      socket.once("connect", execute);
+    }
   };
 
   const handleAddBot = () => {

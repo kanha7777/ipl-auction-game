@@ -272,27 +272,45 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
 
             <div className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-slate-300 mb-1">
-                  Player Count in Auction Pool
+                <label className="block font-semibold text-slate-300 mb-1 flex items-center justify-between">
+                  <span>Player Count in Auction Pool</span>
+                  <span className="text-ipl-yellow font-bold text-xs">{playerCount} Players</span>
                 </label>
+
+                {/* Direct Number Input for 300+, 400+, 500+ custom size */}
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="number"
+                    min="15"
+                    max="1000"
+                    step="5"
+                    value={playerCount}
+                    onChange={(e) => setPlayerCount(Math.max(15, Number(e.target.value)))}
+                    className="w-full bg-[#0A121E] border border-[#1E304F] focus:border-ipl-yellow rounded-xl px-3 py-2 text-sm font-bold text-ipl-yellow outline-none"
+                    placeholder="Enter any pool size (e.g. 300, 400)"
+                  />
+                  <span className="text-xs text-slate-400 shrink-0 font-medium">Custom Pool</span>
+                </div>
+
+                {/* Quick Selection Pills */}
                 <div className="grid grid-cols-4 gap-1.5 mb-1.5">
-                  {[30, 45, 60, 80, 100, 120, 140, 160].map((count) => (
+                  {[40, 80, 150, 200, 300, 400, 500, 600].map((count) => (
                     <button
                       key={count}
                       type="button"
                       onClick={() => setPlayerCount(count)}
-                      className={`py-1.5 px-2 rounded-lg border text-xs font-bold ${
+                      className={`py-1.5 px-2 rounded-lg border text-xs font-bold transition ${
                         playerCount === count
-                          ? "bg-ipl-yellow text-black border-ipl-yellow"
-                          : "bg-[#0A121E] text-slate-300 border-[#1E304F]"
+                          ? "bg-ipl-yellow text-black border-ipl-yellow shadow-md"
+                          : "bg-[#0A121E] text-slate-300 border-[#1E304F] hover:bg-[#131F33]"
                       }`}
                     >
                       {count} Players
                     </button>
                   ))}
                 </div>
-                <p className="text-[10px] text-amber-300 mt-1">
-                  💡 Auto-scaled for {room.contestants.length} teams (Minimum recommended: {Math.max(30, room.contestants.length * minSquad + 6)} players)
+                <p className="text-[10px] text-amber-300 mt-1 flex items-center gap-1">
+                  <span>💡 Dynamic Pool:</span> Enter any size (300+, 400+, 500+). Auto-scales for {room.contestants.length} teams.
                 </p>
               </div>
 
