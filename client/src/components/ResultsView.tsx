@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+ï»¿import React, { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
 import { RoomData, SquadScoreBreakdown } from "../../../shared/src/types";
 import { formatCrores } from "../../../shared/src/rules";
@@ -48,7 +48,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ room, results, onPlayA
         <div className="flex items-center justify-center gap-2 mt-2">
           <span className="text-3xl">{winner?.teamLogo}</span>
           <span className="text-sm font-semibold text-slate-300">{winner?.contestantName}</span>
-          <span className="text-slate-500">•</span>
+          <span className="text-slate-500">ï¿½</span>
           <span className="font-teko text-2xl font-bold text-ipl-yellow">
             {winner?.totalScore} / 100 PTS
           </span>
@@ -92,7 +92,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ room, results, onPlayA
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="font-teko text-2xl font-bold text-slate-400 w-6 text-center">
-                    {idx === 0 ? "??" : idx === 1 ? "??" : idx === 2 ? "??" : `#${idx + 1}`}
+                    {idx === 0 ? "ðŸ¥‡" : idx === 1 ? "ðŸ¥ˆ" : idx === 2 ? "ðŸ¥‰" : `#${idx + 1}`}
                   </div>
 
                   <span className="text-2xl">{r.teamLogo}</span>
@@ -100,7 +100,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ room, results, onPlayA
                   <div className="min-w-0">
                     <p className="text-xs font-bold text-white truncate">{r.teamName}</p>
                     <p className="text-[11px] text-slate-400 truncate">
-                      {r.contestantName} • {r.squadCount} Players • {formatCrores(r.totalSpent)} Spent
+                      {r.contestantName} ï¿½ {r.squadCount} Players ï¿½ {formatCrores(r.totalSpent)} Spent
                     </p>
                   </div>
                 </div>
@@ -128,7 +128,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ room, results, onPlayA
                   {selectedBreakdown.teamName} Breakdown
                 </h3>
                 <p className="text-[11px] text-slate-400">
-                  Rank #{selectedBreakdown.rank} • Total Score: {selectedBreakdown.totalScore}/100
+                  Rank #{selectedBreakdown.rank} ï¿½ Total Score: {selectedBreakdown.totalScore}/100
                 </p>
               </div>
             </div>
@@ -171,7 +171,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ room, results, onPlayA
               <ul className="space-y-1 text-xs text-slate-300">
                 {selectedBreakdown.strengths.map((s, idx) => (
                   <li key={idx} className="flex items-start gap-1.5">
-                    <span className="text-emerald-400">•</span>
+                    <span className="text-emerald-400">ï¿½</span>
                     <span>{s}</span>
                   </li>
                 ))}
@@ -186,7 +186,7 @@ export const ResultsView: React.FC<ResultsViewProps> = ({ room, results, onPlayA
                 {selectedBreakdown.weaknesses.length > 0 ? (
                   selectedBreakdown.weaknesses.map((w, idx) => (
                     <li key={idx} className="flex items-start gap-1.5">
-                      <span className="text-amber-400">•</span>
+                      <span className="text-amber-400">ï¿½</span>
                       <span>{w}</span>
                     </li>
                   ))

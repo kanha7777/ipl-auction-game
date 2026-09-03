@@ -43,9 +43,7 @@ export const AuctionTab: React.FC<AuctionTabProps> = ({
   if (!item) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-ipl-card border border-[#1E304F] flex items-center justify-center text-3xl mb-3 animate-pulse">
-          ??
-        </div>
+        <div className="w-16 h-16 rounded-2xl bg-ipl-card border border-[#1E304F] flex items-center justify-center text-3xl mb-3 animate-pulse">🏏</div>
         <h2 className="font-teko text-3xl font-bold text-slate-200">Preparing Next Player...</h2>
         <p className="text-xs text-slate-400 mt-1">
           {room.state === "UNSOLD_ROUND" ? "Unsold Round in progress" : "Auction engine is spinning up"}
@@ -114,7 +112,7 @@ export const AuctionTab: React.FC<AuctionTabProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5 text-xs text-slate-300 bg-[#0A121E] px-2.5 py-1 rounded-md border border-[#1E304F]">
-            <span>{player.isOverseas ? "??" : "????"}</span>
+            <span>{player.isOverseas ? "✈️" : "🇮🇳"}</span>
             <span className="font-semibold">{player.country}</span>
           </div>
         </div>
@@ -259,7 +257,7 @@ export const AuctionTab: React.FC<AuctionTabProps> = ({
         <div className="mt-3.5 space-y-1">
           <div className="flex items-center justify-between text-xs">
             <span className="font-semibold text-slate-400 flex items-center gap-1">
-              ?? Timer:
+              ⏱️ Timer:
             </span>
             <span className={`font-teko text-xl font-bold leading-none ${
               isDanger ? "text-rose-400 animate-pulse-fast" : isWarning ? "text-amber-400" : "text-emerald-400"

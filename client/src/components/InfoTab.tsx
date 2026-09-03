@@ -24,7 +24,7 @@ export const InfoTab: React.FC<InfoTabProps> = ({ room }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
           <div className="bg-[#0A121E] p-2.5 rounded-xl border border-[#1E304F]">
             <div className="flex justify-between font-bold">
-              <span>?? Batting Firepower</span>
+              <span>🏏 Batting Firepower</span>
               <span className="text-ipl-yellow font-teko text-base">20 Pts</span>
             </div>
             <p className="text-[10px] text-slate-400 mt-0.5">Top 6 batters ratings, strike rates, averages, and milestones.</p>
@@ -32,7 +32,7 @@ export const InfoTab: React.FC<InfoTabProps> = ({ room }) => {
 
           <div className="bg-[#0A121E] p-2.5 rounded-xl border border-[#1E304F]">
             <div className="flex justify-between font-bold">
-              <span>?? Bowling Arsenal</span>
+              <span>🎯 Bowling Arsenal</span>
               <span className="text-ipl-yellow font-teko text-base">20 Pts</span>
             </div>
             <p className="text-[10px] text-slate-400 mt-0.5">Frontline 5 bowlers, pace-spin balance, death bowling economy.</p>
@@ -48,7 +48,7 @@ export const InfoTab: React.FC<InfoTabProps> = ({ room }) => {
 
           <div className="bg-[#0A121E] p-2.5 rounded-xl border border-[#1E304F]">
             <div className="flex justify-between font-bold">
-              <span>?? Wicketkeeping</span>
+              <span>🧤 Wicketkeeping</span>
               <span className="text-ipl-yellow font-teko text-base">10 Pts</span>
             </div>
             <p className="text-[10px] text-slate-400 mt-0.5">Primary keeper quality and backup wicketkeeping option.</p>
@@ -56,7 +56,7 @@ export const InfoTab: React.FC<InfoTabProps> = ({ room }) => {
 
           <div className="bg-[#0A121E] p-2.5 rounded-xl border border-[#1E304F]">
             <div className="flex justify-between font-bold">
-              <span>?? Squad Depth</span>
+              <span>🛡️ Squad Depth</span>
               <span className="text-ipl-yellow font-teko text-base">10 Pts</span>
             </div>
             <p className="text-[10px] text-slate-400 mt-0.5">Bench strength across positions to handle match rotations.</p>
@@ -64,7 +64,7 @@ export const InfoTab: React.FC<InfoTabProps> = ({ room }) => {
 
           <div className="bg-[#0A121E] p-2.5 rounded-xl border border-[#1E304F]">
             <div className="flex justify-between font-bold">
-              <span>?? Role Coverage</span>
+              <span>📋 Role Coverage</span>
               <span className="text-ipl-yellow font-teko text-base">10 Pts</span>
             </div>
             <p className="text-[10px] text-slate-400 mt-0.5">Openers, Middle Order, Finishers, Pace, Spin, and Death Specialists.</p>
@@ -72,7 +72,7 @@ export const InfoTab: React.FC<InfoTabProps> = ({ room }) => {
 
           <div className="bg-[#0A121E] p-2.5 rounded-xl border border-[#1E304F]">
             <div className="flex justify-between font-bold">
-              <span>???? Indian/Overseas Balance</span>
+              <span>🇮🇳/✈️ Indian/Overseas Balance</span>
               <span className="text-ipl-yellow font-teko text-base">5 Pts</span>
             </div>
             <p className="text-[10px] text-slate-400 mt-0.5">Impactful overseas stars within 5 limit + strong domestic core.</p>
@@ -80,7 +80,7 @@ export const InfoTab: React.FC<InfoTabProps> = ({ room }) => {
 
           <div className="bg-[#0A121E] p-2.5 rounded-xl border border-[#1E304F]">
             <div className="flex justify-between font-bold">
-              <span>?? Squad Flexibility</span>
+              <span>🔄 Squad Flexibility</span>
               <span className="text-ipl-yellow font-teko text-base">5 Pts</span>
             </div>
             <p className="text-[10px] text-slate-400 mt-0.5">Left-Right hand batting combinations & varied bowling styles.</p>
@@ -88,7 +88,7 @@ export const InfoTab: React.FC<InfoTabProps> = ({ room }) => {
 
           <div className="bg-[#0A121E] p-2.5 rounded-xl border border-[#1E304F] sm:col-span-2">
             <div className="flex justify-between font-bold">
-              <span>?? Value / Purse Management</span>
+              <span>💰 Value / Purse Management</span>
               <span className="text-ipl-yellow font-teko text-base">5 Pts</span>
             </div>
             <p className="text-[10px] text-slate-400 mt-0.5">ROI per Crore spent, avoiding overpays while maintaining enough budget.</p>

@@ -149,7 +149,7 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
         {/* Validation Notice */}
         {!isPoolValid && (
           <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-300 text-xs flex items-center gap-2">
-            <span>??</span>
+            <span>✈️</span>
             <span>
               Configured pool size ({room.config.playerCount}) is lower than minimum needed for {room.contestants.length} teams ({minRequiredPool} players). Please increase player count in configuration.
             </span>
@@ -333,7 +333,7 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
                         )}
                         {p.isOverseas && (
                           <span className="bg-sky-500/20 text-sky-300 text-[9px] font-bold px-1 rounded">
-                            ?? OS
+                            ✈️ OS
                           </span>
                         )}
                       </div>

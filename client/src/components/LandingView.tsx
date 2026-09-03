@@ -1,24 +1,24 @@
 ﻿import React, { useState } from "react";
-import { Trophy, Users, PlusCircle, LogIn, Sparkles } from "lucide-react";
+import { PlusCircle, LogIn, Sparkles } from "lucide-react";
 
 interface LandingViewProps {
   onCreateRoom: (hostName: string, teamName: string, teamColor: string, teamLogo: string) => void;
   onJoinRoom: (roomId: string, name: string, teamName: string, teamColor: string, teamLogo: string) => void;
   loading: boolean;
-  error?: string | null;
+  error: string | null;
 }
 
 const IPL_TEAMS = [
-  { name: "Chennai Super Kings", short: "CSK", color: "#F9CD05", logo: "??" },
-  { name: "Mumbai Indians", short: "MI", color: "#004BA0", logo: "?" },
-  { name: "Royal Challengers Bengaluru", short: "RCB", color: "#EC1C24", logo: "??" },
-  { name: "Kolkata Knight Riders", short: "KKR", color: "#3A225D", logo: "??" },
-  { name: "Rajasthan Royals", short: "RR", color: "#EA1A85", logo: "??" },
-  { name: "Sunrisers Hyderabad", short: "SRH", color: "#F26522", logo: "??" },
-  { name: "Delhi Capitals", short: "DC", color: "#0078FF", logo: "??" },
-  { name: "Gujarat Titans", short: "GT", color: "#1B2133", logo: "???" },
-  { name: "Lucknow Super Giants", short: "LSG", color: "#A72056", logo: "???" },
-  { name: "Punjab Kings", short: "PBKS", color: "#ED1B24", logo: "??" },
+  { name: "Chennai Super Kings", short: "CSK", color: "#F9CD05", logo: "🦁" },
+  { name: "Mumbai Indians", short: "MI", color: "#004BA0", logo: "⚡" },
+  { name: "Royal Challengers Bengaluru", short: "RCB", color: "#EC1C24", logo: "🔥" },
+  { name: "Kolkata Knight Riders", short: "KKR", color: "#3A225D", logo: "⚔️" },
+  { name: "Rajasthan Royals", short: "RR", color: "#EA1A85", logo: "👑" },
+  { name: "Sunrisers Hyderabad", short: "SRH", color: "#F26522", logo: "🦅" },
+  { name: "Delhi Capitals", short: "DC", color: "#0078FF", logo: "🐯" },
+  { name: "Gujarat Titans", short: "GT", color: "#1B2133", logo: "🛡️" },
+  { name: "Lucknow Super Giants", short: "LSG", color: "#A72056", logo: "🌪️" },
+  { name: "Punjab Kings", short: "PBKS", color: "#ED1B24", logo: "🦁" },
 ];
 
 export const LandingView: React.FC<LandingViewProps> = ({
@@ -58,14 +58,14 @@ export const LandingView: React.FC<LandingViewProps> = ({
         <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-ipl-blue via-indigo-600 to-ipl-yellow p-0.5 shadow-xl mb-3">
             <div className="w-full h-full bg-[#0E1A2B] rounded-[14px] flex items-center justify-center text-3xl">
-              ??
+              🏏
             </div>
           </div>
           <h1 className="font-teko text-4xl font-bold tracking-wider text-white uppercase leading-none">
             IPL All-Time <span className="text-ipl-yellow">Auction</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Real-Time Multiplayer Auction Game � ₹120 Cr Purse
+            Real-Time Multiplayer Auction Game • ₹120 Cr Purse
           </p>
         </div>
 
