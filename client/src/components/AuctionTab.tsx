@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 interface AuctionTabProps {
+  onEndAuction?: () => void;
   room: RoomData;
   contestant: Contestant;
   item: CurrentAuctionItem | null;
@@ -39,6 +40,7 @@ export const AuctionTab: React.FC<AuctionTabProps> = ({
   onSkip,
   onMarkUnsold,
   onRestart,
+  onEndAuction,
 }) => {
   if (!item) {
     return (
@@ -368,6 +370,20 @@ export const AuctionTab: React.FC<AuctionTabProps> = ({
               <span>Restart</span>
             </button>
           </div>
+
+          {onEndAuction && (
+            <button
+              onClick={() => {
+                if (window.confirm("Are you sure you want to end the auction and declare the winner now?")) {
+                  onEndAuction();
+                }
+              }}
+              className="w-full mt-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 font-bold py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 text-xs transition active:scale-98"
+            >
+              <Award className="w-3.5 h-3.5 text-rose-400" />
+              <span>End Auction & Declare Champion Now</span>
+            </button>
+          )}
         </div>
       )}
     </div>

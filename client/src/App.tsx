@@ -332,6 +332,7 @@ export const App: React.FC = () => {
             onSkip={handleSkip}
             onMarkUnsold={handleMarkUnsold}
             onRestart={handleRestart}
+            onEndAuction={handleEndAuction}
           />
         )}
 
