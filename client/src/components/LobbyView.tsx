@@ -123,7 +123,7 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
             👥 <strong className="text-white">{room.contestants.length}/20</strong> Franchises
           </span>
           <span className="bg-[#0A121E] text-slate-300 px-2.5 py-1 rounded-lg border border-[#1E304F]">
-            🏏 Pool: <strong className="text-white">{room.config.playerCount}</strong> Players
+            🏏 Pool: <strong className="text-white">{room.pool.length || room.config.playerCount}</strong> Players (Auto-scaled)
           </span>
           <span className="bg-[#0A121E] text-slate-300 px-2.5 py-1 rounded-lg border border-[#1E304F]">
             🛡️ Squad: <strong className="text-white">{room.config.minSquadSize}–{room.config.maxSquadSize}</strong> (Max {room.config.maxOverseas} OS)
@@ -276,7 +276,7 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
                   Player Count in Auction Pool
                 </label>
                 <div className="grid grid-cols-4 gap-1.5 mb-1.5">
-                  {[20, 30, 40, 50, 60, 75, 100].map((count) => (
+                  {[30, 45, 60, 80, 100, 120, 140, 160].map((count) => (
                     <button
                       key={count}
                       type="button"
@@ -291,6 +291,9 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
                     </button>
                   ))}
                 </div>
+                <p className="text-[10px] text-amber-300 mt-1">
+                  💡 Auto-scaled for {room.contestants.length} teams (Minimum recommended: {Math.max(30, room.contestants.length * minSquad + 6)} players)
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">

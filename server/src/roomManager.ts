@@ -1,4 +1,4 @@
-import { Server } from "socket.io";
+﻿import { Server } from "socket.io";
 import {
   AuctionConfig,
   Bid,
@@ -144,6 +144,10 @@ export class RoomManager {
     };
 
     room.contestants.push(contestant);
+    // Auto-scale pool size as number of teams increases
+    const needed = Math.max(room.config.playerCount, room.contestants.length * room.config.minSquadSize + 6);
+    room.config.playerCount = needed;
+    room.pool = generateAuctionPool(needed);
     return { room, contestant };
   }
 
@@ -192,6 +196,10 @@ export class RoomManager {
     };
 
     room.contestants.push(botContestant);
+    // Auto-scale pool size as number of teams increases
+    const needed = Math.max(room.config.playerCount, room.contestants.length * room.config.minSquadSize + 6);
+    room.config.playerCount = needed;
+    room.pool = generateAuctionPool(needed);
     return { room };
   }
 
@@ -218,6 +226,8 @@ export class RoomManager {
   public preparePool(roomId: string, hostId: string): RoomData | null {
     const room = this.rooms.get(roomId);
     if (!room || room.hostId !== hostId) return null;
+    const needed = Math.max(room.config.playerCount, room.contestants.length * room.config.minSquadSize + 6);
+    room.config.playerCount = Math.max(room.config.playerCount, needed);
     room.pool = generateAuctionPool(room.config.playerCount);
     room.state = "POOL_READY";
     return room;
@@ -226,7 +236,9 @@ export class RoomManager {
   public startAuction(roomId: string, hostId: string): RoomData | null {
     const room = this.rooms.get(roomId);
     if (!room || room.hostId !== hostId) return null;
-    if (room.pool.length === 0) {
+    const needed = Math.max(room.config.playerCount, room.contestants.length * room.config.minSquadSize + 6);
+    room.config.playerCount = Math.max(room.config.playerCount, needed);
+    if (room.pool.length === 0 || room.pool.length < needed) {
       room.pool = generateAuctionPool(room.config.playerCount);
     }
     room.state = "AUCTION_RUNNING";
