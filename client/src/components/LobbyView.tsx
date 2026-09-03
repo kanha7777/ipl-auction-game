@@ -1,7 +1,20 @@
 ﻿import React, { useState } from "react";
-import { Contestant, RoomData, AuctionConfig, Player } from "../../../shared/src/types";
+import { RoomData, Contestant, AuctionConfig } from "../../../shared/src/types";
 import { formatCrores } from "../../../shared/src/rules";
-import { Users, Settings, Play, Bot, Trash2, Shield, Eye, RefreshCw, Layers, CheckCircle2 } from "lucide-react";
+import {
+  Users,
+  Settings,
+  Bot,
+  Play,
+  Share2,
+  Trash2,
+  Layers,
+  Sparkles,
+  CheckCircle2,
+  RefreshCw,
+  Crown,
+  X
+} from "lucide-react";
 
 interface LobbyViewProps {
   room: RoomData;
@@ -24,165 +37,225 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
 }) => {
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [showPoolPreview, setShowPoolPreview] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  // Config state
   const [playerCount, setPlayerCount] = useState(room.config.playerCount);
   const [minSquad, setMinSquad] = useState(room.config.minSquadSize);
   const [maxSquad, setMaxSquad] = useState(room.config.maxSquadSize);
   const [maxOverseas, setMaxOverseas] = useState(room.config.maxOverseas);
 
-  const minRequiredPool = room.contestants.length * room.config.minSquadSize;
-  const isPoolValid = room.config.playerCount >= minRequiredPool;
+  const isHost = contestant.isHost;
+  const host = room.contestants.find((c) => c.isHost);
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(room.id);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   const handleSaveConfig = () => {
     onUpdateConfig({
-      playerCount: Number(playerCount),
-      minSquadSize: Number(minSquad),
-      maxSquadSize: Number(maxSquad),
-      maxOverseas: Number(maxOverseas),
+      playerCount,
+      minSquadSize: minSquad,
+      maxSquadSize: maxSquad,
+      maxOverseas,
     });
     setShowConfigModal(false);
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-4">
-      {/* Top Banner */}
-      <div className="bg-gradient-to-r from-ipl-blue via-[#13223A] to-[#0E1A2B] border border-[#1E304F] rounded-2xl p-5 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-ipl-card border border-ipl-yellow/40 flex items-center justify-center text-2xl shadow-inner">
-            {contestant.teamLogo}
+    <div className="max-w-2xl mx-auto p-4 space-y-4 pb-20">
+      {/* Lobby Header Card */}
+      <div className="bg-ipl-card border border-[#1E304F] rounded-2xl p-5 shadow-2xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-ipl-yellow/10 rounded-full blur-2xl pointer-events-none" />
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-14 h-14 rounded-2xl bg-[#0A121E] border border-ipl-yellow/40 flex items-center justify-center text-3xl shadow-inner">
+              {contestant.teamLogo}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="font-teko text-3xl font-bold tracking-wide text-white leading-none">
+                  AUCTION LOBBY
+                </h1>
+                <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 uppercase tracking-widest">
+                  Ready
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Host: <span className="text-ipl-yellow font-semibold">{host?.name || "Host"}</span> • Purse: <span className="text-emerald-400 font-semibold">{formatCrores(room.config.startingPurse)}</span>
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-teko text-3xl font-bold text-white tracking-wide leading-none">
-              AUCTION LOBBY
-            </h1>
-            <p className="text-xs text-slate-300">
-              Host: <span className="font-bold text-ipl-yellow">{room.contestants.find((c) => c.isHost)?.name}</span> � Purse: <span className="font-bold text-emerald-400">?{room.config.startingPurse} Cr</span>
-            </p>
+
+          {/* Room ID Badge & Share */}
+          <div className="flex items-center gap-2 bg-[#0A121E] border border-[#1E304F] p-2 rounded-xl">
+            <div className="text-left px-1">
+              <span className="text-[9px] uppercase font-bold text-slate-400 block leading-tight">
+                Room Code
+              </span>
+              <span className="font-teko text-xl font-bold text-ipl-yellow tracking-widest leading-none">
+                {room.id}
+              </span>
+            </div>
+            <button
+              onClick={handleCopyLink}
+              className="bg-[#1E304F] hover:bg-[#284068] text-white p-2 rounded-lg text-xs flex items-center gap-1 transition active:scale-95"
+              title="Copy Room Code"
+            >
+              {copied ? (
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              ) : (
+                <Share2 className="w-3.5 h-3.5" />
+              )}
+              <span className="hidden sm:inline text-[11px] font-semibold">
+                {copied ? "Copied" : "Copy"}
+              </span>
+            </button>
           </div>
         </div>
 
-        {/* Action buttons */}
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          {contestant.isHost && (
-            <>
-              <button
-                onClick={() => setShowConfigModal(true)}
-                className="flex-1 sm:flex-initial bg-[#131F33] hover:bg-[#1E304F] text-slate-200 border border-[#1E304F] px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95"
-              >
-                <Settings className="w-4 h-4 text-ipl-accent" />
-                Configure
-              </button>
-              <button
-                onClick={() => {
-                  onPreparePool();
-                  setShowPoolPreview(true);
-                }}
-                className="flex-1 sm:flex-initial bg-[#131F33] hover:bg-[#1E304F] text-slate-200 border border-[#1E304F] px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95"
-              >
-                <Eye className="w-4 h-4 text-ipl-yellow" />
-                Preview Pool
-              </button>
-            </>
-          )}
+        {/* Quick Rules Pills */}
+        <div className="mt-4 pt-3 border-t border-[#1E304F] flex flex-wrap items-center gap-2 text-xs">
+          <span className="bg-[#0A121E] text-slate-300 px-2.5 py-1 rounded-lg border border-[#1E304F]">
+            👥 <strong className="text-white">{room.contestants.length}/20</strong> Franchises
+          </span>
+          <span className="bg-[#0A121E] text-slate-300 px-2.5 py-1 rounded-lg border border-[#1E304F]">
+            🏏 Pool: <strong className="text-white">{room.config.playerCount}</strong> Players
+          </span>
+          <span className="bg-[#0A121E] text-slate-300 px-2.5 py-1 rounded-lg border border-[#1E304F]">
+            🛡️ Squad: <strong className="text-white">{room.config.minSquadSize}–{room.config.maxSquadSize}</strong> (Max {room.config.maxOverseas} OS)
+          </span>
+          <span className="bg-[#0A121E] text-slate-300 px-2.5 py-1 rounded-lg border border-[#1E304F]">
+            ⏱️ Timer: <strong className="text-white">{room.config.timerDuration}s</strong>
+          </span>
         </div>
       </div>
 
-      {/* Contestant Grid */}
-      <div className="bg-ipl-card border border-[#1E304F] rounded-2xl p-5 shadow-lg space-y-4">
+      {/* Contestants Grid */}
+      <div className="bg-ipl-card border border-[#1E304F] rounded-2xl p-4 space-y-3 shadow-xl">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-ipl-accent" />
-            <h2 className="text-sm font-bold uppercase tracking-wider text-slate-200">
-              Contestants ({room.contestants.length}/20)
-            </h2>
-          </div>
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+            <Users className="w-4 h-4 text-ipl-accent" /> Contestants ({room.contestants.length}/20)
+          </h2>
 
-          {contestant.isHost && room.contestants.length < 20 && (
+          {isHost && room.contestants.length < 20 && (
             <button
               onClick={onAddBot}
-              className="bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 border border-indigo-500/40 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition active:scale-95"
+              className="bg-[#131F33] hover:bg-[#1E304F] text-ipl-yellow border border-ipl-yellow/30 text-xs font-semibold py-1.5 px-3 rounded-xl flex items-center gap-1.5 transition active:scale-95 shadow"
             >
               <Bot className="w-3.5 h-3.5" />
-              Add AI Bot Franchise
+              <span>Add AI Franchise</span>
             </button>
           )}
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           {room.contestants.map((c) => (
             <div
               key={c.id}
-              className="bg-[#0A121E] border border-[#1E304F] rounded-xl p-3.5 flex items-center justify-between gap-2 shadow-sm transition hover:border-slate-600"
+              className={`flex items-center justify-between p-3 rounded-xl border transition ${
+                c.id === contestant.id
+                  ? "bg-[#131F33] border-ipl-yellow/60 shadow-md"
+                  : "bg-[#0A121E] border-[#1E304F]"
+              }`}
             >
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <span className="text-2xl filter drop-shadow">{c.teamLogo}</span>
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <p className="text-xs font-bold text-slate-100 truncate">{c.teamName}</p>
+                    <p className="text-xs font-bold text-white truncate">{c.teamName}</p>
                     {c.isHost && (
-                      <span className="bg-amber-500/20 text-amber-300 text-[9px] font-bold px-1.5 py-0.2 rounded border border-amber-500/30">
-                        HOST
+                      <span className="bg-amber-500/20 text-ipl-yellow text-[9px] font-extrabold px-1.5 py-0.2 rounded border border-amber-500/30 uppercase">
+                        Host
                       </span>
                     )}
                     {c.isBot && (
-                      <span className="bg-indigo-500/20 text-indigo-300 text-[9px] font-bold px-1.5 py-0.2 rounded border border-indigo-500/30">
-                        AI BOT
+                      <span className="bg-indigo-500/20 text-indigo-300 text-[9px] font-bold px-1.5 py-0.2 rounded border border-indigo-500/30 uppercase">
+                        AI
                       </span>
                     )}
                   </div>
-                  <p className="text-[11px] text-slate-400 truncate">{c.name} � {formatCrores(c.purse)}</p>
+                  <p className="text-[11px] text-slate-400 truncate">
+                    {c.name} • {formatCrores(c.purse)}
+                  </p>
                 </div>
               </div>
 
-              {contestant.isHost && !c.isHost && (
+              {isHost && !c.isHost && (
                 <button
                   onClick={() => onRemoveContestant(c.id)}
-                  className="text-slate-500 hover:text-rose-400 p-1 transition"
-                  title="Remove contestant"
+                  className="text-slate-500 hover:text-rose-400 p-1.5 rounded-lg transition"
+                  title="Remove from room"
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
           ))}
         </div>
-
-        {/* Validation Notice */}
-        {!isPoolValid && (
-          <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-amber-300 text-xs flex items-center gap-2">
-            <span>✈️</span>
-            <span>
-              Configured pool size ({room.config.playerCount}) is lower than minimum needed for {room.contestants.length} teams ({minRequiredPool} players). Please increase player count in configuration.
-            </span>
-          </div>
-        )}
-
-        {/* Start Auction button */}
-        {contestant.isHost ? (
-          <div className="pt-3">
-            <button
-              onClick={onStartAuction}
-              disabled={room.contestants.length < 1}
-              className="w-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-black font-extrabold py-4 px-6 rounded-xl flex items-center justify-center gap-2 text-base shadow-lg shadow-emerald-500/20 transition active:scale-[0.99]"
-            >
-              <Play className="w-5 h-5 fill-black" />
-              START LIVE IPL AUCTION NOW
-            </button>
-            <p className="text-center text-[11px] text-slate-400 mt-1.5">
-              Room will lock immediately upon auction start. 7-second timer per player.
-            </p>
-          </div>
-        ) : (
-          <div className="p-4 bg-[#0A121E] border border-[#1E304F] rounded-xl text-center">
-            <p className="text-sm font-semibold text-slate-300">
-              Waiting for the host (<span className="text-ipl-yellow">{room.contestants.find((c) => c.isHost)?.name}</span>) to start the auction...
-            </p>
-          </div>
-        )}
       </div>
+
+      {/* Host Controls & Actions */}
+      {isHost ? (
+        <div className="bg-ipl-card border border-[#1E304F] rounded-2xl p-4 space-y-3 shadow-xl">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+            <Crown className="w-4 h-4 text-amber-400" /> Host Controls
+          </h2>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setShowConfigModal(true)}
+              className="bg-[#131F33] hover:bg-[#1E304F] text-white border border-[#2A3F64] font-semibold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
+            >
+              <Settings className="w-4 h-4 text-ipl-accent" />
+              Configure Rules
+            </button>
+
+            <button
+              onClick={() => {
+                onPreparePool();
+                setShowPoolPreview(true);
+              }}
+              className="bg-[#131F33] hover:bg-[#1E304F] text-white border border-[#2A3F64] font-semibold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
+            >
+              <Layers className="w-4 h-4 text-ipl-yellow" />
+              Preview Pool
+            </button>
+          </div>
+
+          <button
+            onClick={onStartAuction}
+            disabled={room.contestants.length < 2}
+            className="w-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 hover:from-amber-400 hover:to-yellow-300 disabled:opacity-50 text-black font-extrabold py-3.5 px-4 rounded-xl text-sm shadow-xl shadow-yellow-500/20 flex items-center justify-center gap-2 transition active:scale-95 uppercase tracking-wider"
+          >
+            <Play className="w-4 h-4 fill-current" />
+            START ALL-TIME AUCTION
+          </button>
+
+          {room.contestants.length < 2 && (
+            <p className="text-[11px] text-amber-300 text-center">
+              Add at least 1 more franchise (or AI bot) to start the auction.
+            </p>
+          )}
+        </div>
+      ) : (
+        <div className="bg-[#0A121E] border border-[#1E304F] rounded-2xl p-4 text-center space-y-2">
+          <div className="w-10 h-10 rounded-full bg-amber-500/10 text-ipl-yellow flex items-center justify-center mx-auto animate-pulse">
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <h3 className="font-teko text-xl font-bold text-white">Waiting for Host to Start...</h3>
+          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+            The host is configuring rules and finalizing contestants. The live auction will begin automatically.
+          </p>
+        </div>
+      )}
 
       {/* Configuration Modal */}
       {showConfigModal && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-ipl-card border border-[#1E304F] rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#1E304F] pb-3">
               <h3 className="text-sm font-bold uppercase tracking-wider text-white flex items-center gap-2">
@@ -191,9 +264,9 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
               </h3>
               <button
                 onClick={() => setShowConfigModal(false)}
-                className="text-slate-400 hover:text-white text-xs font-bold"
+                className="text-slate-400 hover:text-white p-1 rounded-lg"
               >
-                ?
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -258,9 +331,9 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
               </div>
 
               <div className="bg-[#0A121E] p-3 rounded-xl border border-[#1E304F] text-[11px] text-slate-400 space-y-1">
-                <p>� Starting Purse: <span className="text-ipl-yellow font-bold">₹120 Cr</span> (Fixed MVP)</p>
-                <p>� Countdown Timer: <span className="text-ipl-yellow font-bold">7 Seconds</span> (Resets on bid)</p>
-                <p>� Marquee Opening sequence enabled automatically</p>
+                <p>• Starting Purse: <span className="text-ipl-yellow font-bold">₹120 Cr</span> (Fixed MVP)</p>
+                <p>• Countdown Timer: <span className="text-ipl-yellow font-bold">7 Seconds</span> (Resets on bid)</p>
+                <p>• Marquee Opening sequence enabled automatically</p>
               </div>
             </div>
 
@@ -305,9 +378,9 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
                 </button>
                 <button
                   onClick={() => setShowPoolPreview(false)}
-                  className="text-slate-400 hover:text-white text-sm font-bold ml-2"
+                  className="text-slate-400 hover:text-white p-1 rounded-lg ml-2"
                 >
-                  ?
+                  <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
@@ -338,7 +411,7 @@ export const LobbyView: React.FC<LobbyViewProps> = ({
                         )}
                       </div>
                       <p className="text-[11px] text-slate-400 truncate">
-                        {p.primaryRole} � {p.secondaryRole}
+                        {p.primaryRole} • {p.secondaryRole}
                       </p>
                     </div>
                   </div>
