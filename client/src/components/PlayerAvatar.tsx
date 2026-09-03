@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+﻿import React from "react";
 import { Player } from "../../../shared/src/types";
 
 interface PlayerAvatarProps {
@@ -14,108 +14,104 @@ export const PlayerAvatar: React.FC<PlayerAvatarProps> = ({
   className = "",
   showTierGlow = false,
 }) => {
-  const [imgError, setImgError] = useState(false);
-
-  // Extract athletic initials (e.g. Virat Kohli -> VK, Andre Russell -> AR, MS Dhoni -> MSD)
+  // Extract athletic initials (e.g. Virat Kohli -> VK, MS Dhoni -> MSD, AB de Villiers -> ABD)
   const getInitials = (name: string) => {
-    const parts = name.trim().split(/\s+/);
+    const clean = name.replace(/[()]/g, "").trim();
+    if (clean.toLowerCase().includes("de villiers")) return "ABD";
+    if (clean.toLowerCase().includes("dhoni")) return "MSD";
+    if (clean.toLowerCase().includes("bravo")) return "DJB";
+    if (clean.toLowerCase().includes("russell")) return "DRE";
+    if (clean.toLowerCase().includes("gayle")) return "CG";
+    if (clean.toLowerCase().includes("kohli")) return "VK";
+    if (clean.toLowerCase().includes("rohit")) return "RS";
+    if (clean.toLowerCase().includes("bumrah")) return "JB";
+    if (clean.toLowerCase().includes("malinga")) return "SLM";
+    if (clean.toLowerCase().includes("narine")) return "SPN";
+
+    const parts = clean.split(/\s+/);
     if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
     if (parts.length === 2) return (parts[0][0] + parts[1][0]).toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
-  const roleGradients: Record<string, { bg: string; icon: string; border: string }> = {
+  const roleStyles: Record<string, { bg: string; icon: string; textGrad: string }> = {
     Batter: {
-      bg: "from-blue-900 via-indigo-950 to-slate-950",
+      bg: "bg-gradient-to-tr from-[#0F2B5C] via-[#1E3A8A] to-[#2563EB]",
       icon: "🏏",
-      border: "border-blue-500/40",
+      textGrad: "text-amber-300",
     },
     Bowler: {
-      bg: "from-rose-950 via-red-950 to-slate-950",
+      bg: "bg-gradient-to-tr from-[#5A0E1A] via-[#991B1B] to-[#DC2626]",
       icon: "🎯",
-      border: "border-rose-500/40",
+      textGrad: "text-amber-300",
     },
     "All-rounder": {
-      bg: "from-emerald-950 via-teal-950 to-slate-950",
+      bg: "bg-gradient-to-tr from-[#064E3B] via-[#047857] to-[#059669]",
       icon: "⚡",
-      border: "border-emerald-500/40",
+      textGrad: "text-amber-300",
     },
     Wicketkeeper: {
-      bg: "from-amber-950 via-yellow-950 to-slate-950",
+      bg: "bg-gradient-to-tr from-[#713F12] via-[#B45309] to-[#D97706]",
       icon: "🧤",
-      border: "border-amber-500/40",
+      textGrad: "text-yellow-200",
     },
   };
 
-  const roleStyle = roleGradients[player.primaryRole] || {
-    bg: "from-slate-900 to-slate-950",
+  const style = roleStyles[player.primaryRole] || {
+    bg: "bg-gradient-to-tr from-[#1E293B] to-[#334155]",
     icon: "🏏",
-    border: "border-slate-700",
+    textGrad: "text-amber-300",
   };
 
   const sizeClasses = {
-    sm: "w-9 h-9 text-xs rounded-xl",
-    md: "w-14 h-14 text-sm rounded-2xl",
-    lg: "w-20 h-20 text-base rounded-2xl",
-    xl: "w-24 h-24 sm:w-28 sm:h-28 text-lg rounded-3xl",
+    sm: "w-8 h-8 rounded-lg",
+    md: "w-12 h-12 rounded-xl",
+    lg: "w-16 h-16 rounded-2xl",
+    xl: "w-20 h-20 sm:w-24 sm:h-24 rounded-2xl",
   };
 
   const textSizes = {
-    sm: "text-[12px]",
-    md: "text-lg",
-    lg: "text-2xl",
-    xl: "text-3xl sm:text-4xl",
+    sm: "text-xs font-bold",
+    md: "text-lg font-extrabold",
+    lg: "text-2xl font-extrabold",
+    xl: "text-3xl sm:text-4xl font-extrabold",
   };
 
-  const iconSizes = {
-    sm: "text-[9px] -bottom-0.5 -right-0.5",
+  const iconPositions = {
+    sm: "text-[8px] -bottom-0.5 -right-0.5",
     md: "text-xs bottom-0.5 right-0.5",
     lg: "text-sm bottom-1 right-1",
     xl: "text-base bottom-1.5 right-1.5",
   };
 
   const tierBorders: Record<string, string> = {
-    Marquee: "border-amber-400 ring-2 ring-amber-400/40 shadow-amber-500/20",
-    Icon: "border-purple-400 ring-2 ring-purple-400/30 shadow-purple-500/20",
-    Elite: "border-sky-400 ring-1 ring-sky-400/30",
-    Pro: "border-[#1E304F]",
-    Value: "border-[#1E304F]",
+    Marquee: "border-2 border-amber-400 ring-2 ring-amber-400/40 shadow-lg shadow-amber-500/20",
+    Icon: "border-2 border-purple-400 ring-2 ring-purple-400/30 shadow-lg shadow-purple-500/20",
+    Elite: "border border-sky-400/80 shadow-md",
+    Pro: "border border-[#243B60]",
+    Value: "border border-[#243B60]",
   };
 
-  const glowClass = showTierGlow ? tierBorders[player.tier] || "border-[#1E304F]" : "border-[#1E304F]";
-
-  const hasValidPhoto = player.photo && !imgError && !player.photo.includes("bottts");
+  const borderClass = showTierGlow ? tierBorders[player.tier] || "border border-[#243B60]" : "border border-[#243B60]";
 
   return (
     <div
-      className={`relative inline-flex items-center justify-center shrink-0 overflow-hidden border shadow-xl select-none ${sizeClasses[size]} ${glowClass} ${className}`}
+      className={`relative inline-flex items-center justify-center shrink-0 overflow-hidden shadow-xl select-none ${style.bg} ${sizeClasses[size]} ${borderClass} ${className}`}
     >
-      {hasValidPhoto ? (
-        <img
-          src={player.photo}
-          alt={player.displayName}
-          referrerPolicy="no-referrer"
-          crossOrigin="anonymous"
-          onError={() => setImgError(true)}
-          className="w-full h-full object-cover object-top transition-transform duration-300 hover:scale-105"
-          loading="eager"
-        />
-      ) : (
-        /* High-Quality Cricketer Profile Avatar with Initials & Role Badge */
-        <div
-          className={`w-full h-full bg-gradient-to-tr ${roleStyle.bg} flex flex-col items-center justify-center relative p-1`}
-        >
-          <div className="absolute inset-0 bg-[radial-gradient(#ffffff0a_1px,transparent_1px)] [background-size:8px_8px]" />
-          <span
-            className={`font-teko font-extrabold tracking-wider leading-none text-ipl-yellow ${textSizes[size]} drop-shadow`}
-          >
-            {getInitials(player.fullName)}
-          </span>
-          <span className={`absolute ${iconSizes[size]} filter drop-shadow`}>
-            {roleStyle.icon}
-          </span>
-        </div>
-      )}
+      {/* Subtle sports textured mesh */}
+      <div className="absolute inset-0 bg-[radial-gradient(#ffffff15_1px,transparent_1px)] [background-size:6px_6px] pointer-events-none" />
+
+      {/* Bold Player Initials */}
+      <span
+        className={`font-teko tracking-wider leading-none ${style.textGrad} ${textSizes[size]} drop-shadow-md z-10`}
+      >
+        {getInitials(player.fullName)}
+      </span>
+
+      {/* Mini Role Badge */}
+      <span className={`absolute ${iconPositions[size]} filter drop-shadow z-10 pointer-events-none`}>
+        {style.icon}
+      </span>
     </div>
   );
 };
