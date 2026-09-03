@@ -19,12 +19,26 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:4000";
 export const App: React.FC = () => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [room, setRoom] = useState<RoomData | null>(null);
+  const [contestantId, setContestantId] = useState<string | null>(null);
   const [contestant, setContestant] = useState<Contestant | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>("auction");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [soldInterstitial, setSoldInterstitial] = useState<{ player: any; buyer: any; price: number } | null>(null);
   const [unsoldInterstitial, setUnsoldInterstitial] = useState<any | null>(null);
+
+  // Derive the active contestant directly from room data to ensure live synchronization
+  const currentContestant: Contestant | null =
+    room?.contestants.find((c) => c.id === (contestantId || contestant?.id)) || contestant;
+
+  const updateRoomAndContestant = (updatedRoom: RoomData) => {
+    setRoom(updatedRoom);
+    setContestant((prev) => {
+      const activeId = contestantId || prev?.id;
+      if (!activeId) return prev;
+      return updatedRoom.contestants.find((c) => c.id === activeId) || prev;
+    });
+  };
 
   // Initialize Socket.IO connection
   useEffect(() => {
@@ -41,21 +55,18 @@ export const App: React.FC = () => {
           if (res.success && res.room && res.contestant) {
             setRoom(res.room);
             setContestant(res.contestant);
+            setContestantId(res.contestant.id);
           }
         });
       }
     });
 
     s.on("room_state_updated", (updatedRoom: RoomData) => {
-      setRoom(updatedRoom);
-      setContestant((prev) => {
-        if (!prev) return null;
-        return updatedRoom.contestants.find((c) => c.id === prev.id) || prev;
-      });
+      updateRoomAndContestant(updatedRoom);
     });
 
     s.on("player_presented", (data: { room: RoomData; item: CurrentAuctionItem }) => {
-      setRoom(data.room);
+      updateRoomAndContestant(data.room);
       setSoldInterstitial(null);
       setUnsoldInterstitial(null);
       sounds.playGavel();
@@ -75,39 +86,39 @@ export const App: React.FC = () => {
     });
 
     s.on("bid_placed", (data: any) => {
-      setRoom(data.room);
+      updateRoomAndContestant(data.room);
       sounds.playBid();
     });
 
     s.on("player_sold", (data: any) => {
-      setRoom(data.room);
+      updateRoomAndContestant(data.room);
       setSoldInterstitial(data);
       sounds.playSoldFanfare();
       setTimeout(() => setSoldInterstitial(null), 2400);
     });
 
     s.on("player_unsold", (data: any) => {
-      setRoom(data.room);
+      updateRoomAndContestant(data.room);
       setUnsoldInterstitial(data.player);
       sounds.playGavel();
       setTimeout(() => setUnsoldInterstitial(null), 2400);
     });
 
     s.on("auction_paused", (updatedRoom: RoomData) => {
-      setRoom(updatedRoom);
+      updateRoomAndContestant(updatedRoom);
     });
 
     s.on("auction_resumed", (updatedRoom: RoomData) => {
-      setRoom(updatedRoom);
+      updateRoomAndContestant(updatedRoom);
     });
 
     s.on("player_restarted", (data: any) => {
-      setRoom(data.room);
+      updateRoomAndContestant(data.room);
       sounds.playGavel();
     });
 
     s.on("auction_completed", (data: { room: RoomData; results: SquadScoreBreakdown[] }) => {
-      setRoom(data.room);
+      updateRoomAndContestant(data.room);
       setActiveTab("auction");
     });
 
@@ -116,7 +127,7 @@ export const App: React.FC = () => {
     return () => {
       s.disconnect();
     };
-  }, []);
+  }, [contestantId]);
 
   const handleCreateRoom = (hostName: string, teamName: string, teamColor: string, teamLogo: string) => {
     if (!socket) return;
@@ -127,6 +138,7 @@ export const App: React.FC = () => {
       if (res.success && res.room && res.contestant) {
         setRoom(res.room);
         setContestant(res.contestant);
+        setContestantId(res.contestant.id);
         localStorage.setItem("ipl_auction_token", res.contestant.reconnectToken);
         localStorage.setItem("ipl_auction_room_id", res.room.id);
       } else {
@@ -144,6 +156,7 @@ export const App: React.FC = () => {
       if (res.success && res.room && res.contestant) {
         setRoom(res.room);
         setContestant(res.contestant);
+        setContestantId(res.contestant.id);
         localStorage.setItem("ipl_auction_token", res.contestant.reconnectToken);
         localStorage.setItem("ipl_auction_room_id", res.room.id);
       } else {
@@ -153,68 +166,68 @@ export const App: React.FC = () => {
   };
 
   const handleAddBot = () => {
-    if (!socket || !room || !contestant) return;
-    socket.emit("add_bot", { roomId: room.id, hostId: contestant.id });
+    if (!socket || !room || !currentContestant) return;
+    socket.emit("add_bot", { roomId: room.id, hostId: currentContestant.id });
   };
 
   const handleRemoveContestant = (id: string) => {
-    if (!socket || !room || !contestant) return;
-    socket.emit("remove_contestant", { roomId: room.id, hostId: contestant.id, contestantId: id });
+    if (!socket || !room || !currentContestant) return;
+    socket.emit("remove_contestant", { roomId: room.id, hostId: currentContestant.id, contestantId: id });
   };
 
   const handleUpdateConfig = (cfg: any) => {
-    if (!socket || !room || !contestant) return;
-    socket.emit("update_config", { roomId: room.id, hostId: contestant.id, config: cfg });
+    if (!socket || !room || !currentContestant) return;
+    socket.emit("update_config", { roomId: room.id, hostId: currentContestant.id, config: cfg });
   };
 
   const handlePreparePool = () => {
-    if (!socket || !room || !contestant) return;
-    socket.emit("prepare_pool", { roomId: room.id, hostId: contestant.id });
+    if (!socket || !room || !currentContestant) return;
+    socket.emit("prepare_pool", { roomId: room.id, hostId: currentContestant.id });
   };
 
   const handleStartAuction = () => {
-    if (!socket || !room || !contestant) return;
-    socket.emit("start_auction", { roomId: room.id, hostId: contestant.id });
+    if (!socket || !room || !currentContestant) return;
+    socket.emit("start_auction", { roomId: room.id, hostId: currentContestant.id });
   };
 
   const handlePlaceBid = () => {
-    if (!socket || !room || !contestant) return;
-    socket.emit("place_bid", { roomId: room.id, contestantId: contestant.id });
+    if (!socket || !room || !currentContestant) return;
+    socket.emit("place_bid", { roomId: room.id, contestantId: currentContestant.id });
   };
 
   const handlePause = () => {
-    if (!socket || !room || !contestant) return;
-    socket.emit("pause_auction", { roomId: room.id, hostId: contestant.id });
+    if (!socket || !room || !currentContestant) return;
+    socket.emit("pause_auction", { roomId: room.id, hostId: currentContestant.id });
   };
 
   const handleResume = () => {
-    if (!socket || !room || !contestant) return;
-    socket.emit("resume_auction", { roomId: room.id, hostId: contestant.id });
+    if (!socket || !room || !currentContestant) return;
+    socket.emit("resume_auction", { roomId: room.id, hostId: currentContestant.id });
   };
 
   const handleSkip = () => {
-    if (!socket || !room || !contestant) return;
-    socket.emit("skip_player", { roomId: room.id, hostId: contestant.id });
+    if (!socket || !room || !currentContestant) return;
+    socket.emit("skip_player", { roomId: room.id, hostId: currentContestant.id });
   };
 
   const handleMarkUnsold = () => {
-    if (!socket || !room || !contestant) return;
-    socket.emit("mark_unsold", { roomId: room.id, hostId: contestant.id });
+    if (!socket || !room || !currentContestant) return;
+    socket.emit("mark_unsold", { roomId: room.id, hostId: currentContestant.id });
   };
 
   const handleRestart = () => {
-    if (!socket || !room || !contestant) return;
-    socket.emit("restart_player", { roomId: room.id, hostId: contestant.id });
+    if (!socket || !room || !currentContestant) return;
+    socket.emit("restart_player", { roomId: room.id, hostId: currentContestant.id });
   };
 
   const handleStartUnsoldRound = (selectedPlayerIds?: string[]) => {
-    if (!socket || !room || !contestant) return;
-    socket.emit("start_unsold_round", { roomId: room.id, hostId: contestant.id, selectedPlayerIds });
+    if (!socket || !room || !currentContestant) return;
+    socket.emit("start_unsold_round", { roomId: room.id, hostId: currentContestant.id, selectedPlayerIds });
   };
 
   const handleEndAuction = () => {
-    if (!socket || !room || !contestant) return;
-    socket.emit("end_auction", { roomId: room.id, hostId: contestant.id });
+    if (!socket || !room || !currentContestant) return;
+    socket.emit("end_auction", { roomId: room.id, hostId: currentContestant.id });
   };
 
   const handlePlayAgain = () => {
@@ -222,10 +235,11 @@ export const App: React.FC = () => {
     localStorage.removeItem("ipl_auction_room_id");
     setRoom(null);
     setContestant(null);
+    setContestantId(null);
   };
 
   // If not joined a room yet -> Show Landing View
-  if (!room || !contestant) {
+  if (!room || !currentContestant) {
     return (
       <LandingView
         onCreateRoom={handleCreateRoom}
@@ -240,10 +254,10 @@ export const App: React.FC = () => {
   if (room.state === "LOBBY" || room.state === "CONFIGURATION" || room.state === "POOL_READY") {
     return (
       <div className="min-h-screen bg-[#080E18]">
-        <TopBar room={room} contestant={contestant} onAddBot={handleAddBot} />
+        <TopBar room={room} contestant={currentContestant} onAddBot={handleAddBot} />
         <LobbyView
           room={room}
-          contestant={contestant}
+          contestant={currentContestant}
           onStartAuction={handleStartAuction}
           onAddBot={handleAddBot}
           onRemoveContestant={handleRemoveContestant}
@@ -258,11 +272,11 @@ export const App: React.FC = () => {
   if (room.state === "UNSOLD_ROUND") {
     return (
       <div className="min-h-screen bg-[#080E18]">
-        <TopBar room={room} contestant={contestant} />
-        <ContestantDashboard contestant={contestant} config={room.config} />
+        <TopBar room={room} contestant={currentContestant} />
+        <ContestantDashboard contestant={currentContestant} config={room.config} />
         <UnsoldRoundView
           room={room}
-          contestant={contestant}
+          contestant={currentContestant}
           onStartUnsoldRound={handleStartUnsoldRound}
           onEndAuction={handleEndAuction}
         />
@@ -274,7 +288,7 @@ export const App: React.FC = () => {
   if (room.state === "RESULTS" && room.evaluationResults) {
     return (
       <div className="min-h-screen bg-[#080E18]">
-        <TopBar room={room} contestant={contestant} />
+        <TopBar room={room} contestant={currentContestant} />
         <ResultsView
           room={room}
           results={room.evaluationResults}
@@ -283,7 +297,6 @@ export const App: React.FC = () => {
       </div>
     );
   }
-
 
   // If Finalizing -> Show Loading screen
   if (room.state === "FINALIZING") {
@@ -299,18 +312,19 @@ export const App: React.FC = () => {
       </div>
     );
   }
+
   // In Active Auction -> Mobile 4-tab Layout with Persistent Dashboard
   return (
     <div className="min-h-screen bg-[#080E18] flex flex-col">
-      <TopBar room={room} contestant={contestant} />
-      <ContestantDashboard contestant={contestant} config={room.config} />
+      <TopBar room={room} contestant={currentContestant} />
+      <ContestantDashboard contestant={currentContestant} config={room.config} />
 
       {/* Main Content Area based on Tab */}
       <main className="flex-1 overflow-y-auto">
         {activeTab === "auction" && (
           <AuctionTab
             room={room}
-            contestant={contestant}
+            contestant={currentContestant}
             item={room.currentAuctionItem}
             onPlaceBid={handlePlaceBid}
             onPause={handlePause}
@@ -321,10 +335,10 @@ export const App: React.FC = () => {
           />
         )}
 
-        {activeTab === "squad" && <SquadTab contestant={contestant} />}
+        {activeTab === "squad" && <SquadTab contestant={currentContestant} />}
 
         {activeTab === "teams" && (
-          <TeamsTab room={room} currentUserId={contestant.id} />
+          <TeamsTab room={room} currentUserId={currentContestant.id} />
         )}
 
         {activeTab === "info" && <InfoTab room={room} />}
@@ -334,7 +348,7 @@ export const App: React.FC = () => {
       {soldInterstitial && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in zoom-in duration-200">
           <div className="bg-gradient-to-tr from-emerald-950 via-ipl-card to-[#0A121E] border-2 border-emerald-400 rounded-3xl p-6 text-center max-w-sm w-full shadow-2xl glow-gold">
-            <span className="text-4xl mb-2 block">??</span>
+            <span className="text-4xl mb-2 block">🎉</span>
             <span className="bg-emerald-500/20 text-emerald-300 font-extrabold text-xs px-3 py-1 rounded-full border border-emerald-400/40 uppercase tracking-widest inline-block mb-2">
               SOLD!
             </span>
@@ -345,7 +359,7 @@ export const App: React.FC = () => {
               Sold to <span className="text-ipl-yellow font-bold">{soldInterstitial.buyer.teamName}</span>
             </p>
             <div className="font-teko text-4xl font-extrabold text-ipl-yellow mt-2">
-              ?{soldInterstitial.price} Cr
+              ₹{soldInterstitial.price} Cr
             </div>
           </div>
         </div>
@@ -355,7 +369,7 @@ export const App: React.FC = () => {
       {unsoldInterstitial && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in zoom-in duration-200">
           <div className="bg-[#0A121E] border-2 border-rose-500/50 rounded-3xl p-6 text-center max-w-sm w-full shadow-2xl">
-            <span className="text-4xl mb-2 block">??</span>
+            <span className="text-4xl mb-2 block">🔨</span>
             <span className="bg-rose-500/20 text-rose-300 font-extrabold text-xs px-3 py-1 rounded-full border border-rose-400/40 uppercase tracking-widest inline-block mb-2">
               UNSOLD
             </span>
@@ -372,7 +386,7 @@ export const App: React.FC = () => {
       <BottomNav
         activeTab={activeTab}
         onSelectTab={setActiveTab}
-        squadCount={contestant.squad.length}
+        squadCount={currentContestant.squad.length}
         teamsCount={room.contestants.length}
       />
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+﻿import React, { useState } from "react";
 import { Contestant, RoomData } from "../../../shared/src/types";
 import { formatCrores } from "../../../shared/src/rules";
 import { Users2, Wallet, Globe, ChevronDown, ChevronUp } from "lucide-react";
@@ -67,7 +67,7 @@ export const TeamsTab: React.FC<TeamsTabProps> = ({ room, currentUserId }) => {
                       {formatCrores(c.purse)}
                     </span>
                     <span className="text-[10px] text-slate-400">
-                      {c.squad.length} Players � {overseasCount}/5 OS
+                      {c.squad.length} Players • {overseasCount}/5 OS
                     </span>
                   </div>
                   {isExpanded ? (
@@ -98,13 +98,13 @@ export const TeamsTab: React.FC<TeamsTabProps> = ({ room, currentUserId }) => {
                           className="bg-[#131F33] border border-[#1E304F] rounded-lg p-2 flex items-center justify-between gap-2 text-xs"
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <span className="text-xs">{item.player.isOverseas ? "??" : "????"}</span>
+                            <span className="text-xs">{item.player.isOverseas ? "✈️" : "🇮🇳"}</span>
                             <div className="min-w-0">
                               <p className="font-bold text-slate-200 truncate leading-tight">
                                 {item.player.displayName}
                               </p>
                               <p className="text-[10px] text-slate-400 truncate">
-                                {item.player.primaryRole} � {item.player.ratings.overall} OVR
+                                {item.player.primaryRole} • {item.player.ratings.overall} OVR
                               </p>
                             </div>
                           </div>

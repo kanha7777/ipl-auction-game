@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import { Contestant, Role } from "../../../shared/src/types";
 import { formatCrores } from "../../../shared/src/rules";
 import { Shield, Sparkles, User, Award } from "lucide-react";
@@ -26,7 +26,7 @@ export const SquadTab: React.FC<SquadTabProps> = ({ contestant }) => {
               {contestant.teamName} SQUAD
             </h1>
             <p className="text-xs text-slate-400">
-              {squad.length} Players � Total Spent: <span className="text-ipl-yellow font-bold">{formatCrores(totalSpent)}</span>
+              {squad.length} Players • Total Spent: <span className="text-ipl-yellow font-bold">{formatCrores(totalSpent)}</span>
             </p>
           </div>
         </div>
@@ -41,7 +41,7 @@ export const SquadTab: React.FC<SquadTabProps> = ({ contestant }) => {
 
       {squad.length === 0 ? (
         <div className="bg-[#0A121E] border border-[#1E304F] rounded-2xl p-8 text-center space-y-2">
-          <p className="text-3xl">??</p>
+          <p className="text-3xl">🏏</p>
           <h3 className="font-teko text-2xl font-bold text-slate-200">No Players Bought Yet</h3>
           <p className="text-xs text-slate-400 max-w-xs mx-auto">
             Head over to the Live Auction tab and place single-tap bids to build your dream squad!
@@ -80,11 +80,11 @@ export const SquadTab: React.FC<SquadTabProps> = ({ contestant }) => {
                             <div className="flex items-center gap-1">
                               <p className="text-xs font-bold text-white truncate">{p.displayName}</p>
                               {p.isOverseas && (
-                                <span className="text-[10px]">??</span>
+                                <span className="text-[10px]" title="Overseas Player">✈️</span>
                               )}
                             </div>
                             <p className="text-[10px] text-slate-400 truncate">
-                              {p.ratings.overall} OVR � {p.secondaryRole}
+                              {p.ratings.overall} OVR • {p.secondaryRole}
                             </p>
                           </div>
                         </div>
